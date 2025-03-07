@@ -15,7 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
         return new Date().toLocaleDateString('en-IN', options);
     }
+// Temporary hourly forecast fix (remove static content)
+function clearStaticHourly() {
+    const forecastScroll = document.querySelector('.forecast-scroll');
+    forecastScroll.innerHTML = ''; // Remove static content
+}
 
+// Call this at the end of DOMContentLoaded
+clearStaticHourly();
     // Update weather display
  function updateWeatherUI(data) {
         cityElement.textContent = `${data.city}, IN`;
