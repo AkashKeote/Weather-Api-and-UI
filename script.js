@@ -17,13 +17,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Update weather display
-    function updateWeatherUI(data) {
+ function updateWeatherUI(data) {
         cityElement.textContent = `${data.city}, IN`;
         dateElement.textContent = formatDate();
         tempElement.innerHTML = `${Math.round(data.temperature)}<span>°c</span>`;
         weatherStatus.textContent = data.description;
+        
+        // Update all metrics
         windElement.querySelector('.value').textContent = `${data.wind_speed} km/h`;
         humidityElement.querySelector('.value').textContent = `${data.humidity}%`;
+        tempHighElement.querySelector('.value').textContent = `${Math.round(data.temp_high)}°c`;
+        tempLowElement.querySelector('.value').textContent = `${Math.round(data.temp_low)}°c`;
     }
 
     // Fetch weather data
