@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const humidityElement = document.querySelectorAll('.metric-card')[1];
     const tempHighElement = document.querySelectorAll('.metric-card')[2];
     const tempLowElement = document.querySelectorAll('.metric-card')[3];
-    const hourlyToggle = document.querySelector('.text-button');
+    const hourlyToggle = document.getElementById('hourly-toggle');
     
     // State variables
     let is12HourFormat = false;
@@ -29,6 +29,17 @@ document.addEventListener('DOMContentLoaded', () => {
             minute: '2-digit',
             hour12: is12HourFormat
         }).replace(/^0/, '');
+    }
+
+    // Clear UI elements
+    function clearPreviousData() {
+        cityElement.textContent = "Loading...";
+        tempElement.innerHTML = "--<span>°c</span>";
+        weatherStatus.textContent = "";
+        document.querySelectorAll('.metric-card .value').forEach(el => {
+            el.textContent = "--";
+        });
+        document.querySelector('.forecast-scroll').innerHTML = "";
     }
 
     // Toggle time format
@@ -62,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         weatherStatus.textContent = data.description;
         
         // Update metrics
-        windElement.querySelector('.value').textContent = `${data.wind_speed} km/h`;
+        windElement.querySelector('.value').textContent = `${Math.round(data.wind_speed)} km/h`;
         humidityElement.querySelector('.value').textContent = `${data.humidity}%`;
         tempHighElement.querySelector('.value').textContent = `${Math.round(data.temp_high)}°c`;
         tempLowElement.querySelector('.value').textContent = `${Math.round(data.temp_low)}°c`;
@@ -72,10 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateHourlyForecast();
     }
 
-    // Fetch weather data
+    // Fetch weather data with cache busting
     async function fetchWeather(city) {
+        clearPreviousData();
         try {
-            const response = await fetch(`/weather?city=${encodeURIComponent(city)}`);
+            const response = await fetch(`/weather?city=${encodeURIComponent(city)}&_=${Date.now()}`);
             if (!response.ok) throw new Error('City not found');
             return await response.json();
         } catch (error) {
@@ -107,5 +119,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial setup
     dateElement.textContent = formatDate();
-    document.querySelector('.forecast-scroll').innerHTML = ''; // Clear static content
+    clearPreviousData();
 });
