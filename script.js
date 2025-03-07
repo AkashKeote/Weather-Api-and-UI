@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
     const searchInput = document.querySelector('.search-input');
     const searchFab = document.querySelector('.search-fab');
     const cityElement = document.querySelector('.city');
@@ -9,32 +10,66 @@ document.addEventListener('DOMContentLoaded', () => {
     const humidityElement = document.querySelectorAll('.metric-card')[1];
     const tempHighElement = document.querySelectorAll('.metric-card')[2];
     const tempLowElement = document.querySelectorAll('.metric-card')[3];
+    const hourlyToggle = document.querySelector('.text-button');
+    
+    // State variables
+    let is12HourFormat = false;
+    let hourlyForecastData = [];
 
     // Date formatting
     function formatDate() {
         const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
         return new Date().toLocaleDateString('en-IN', options);
     }
-// Temporary hourly forecast fix (remove static content)
-function clearStaticHourly() {
-    const forecastScroll = document.querySelector('.forecast-scroll');
-    forecastScroll.innerHTML = ''; // Remove static content
-}
 
-// Call this at the end of DOMContentLoaded
-clearStaticHourly();
+    // Time formatting
+    function formatTime(timestamp) {
+        return new Date(timestamp * 1000).toLocaleTimeString('en-IN', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: is12HourFormat
+        }).replace(/^0/, '');
+    }
+
+    // Toggle time format
+    function toggleTimeFormat() {
+        is12HourFormat = !is12HourFormat;
+        hourlyToggle.textContent = is12HourFormat ? '12h' : '24h';
+        updateHourlyForecast();
+    }
+
+    // Update hourly forecast display
+    function updateHourlyForecast() {
+        const forecastScroll = document.querySelector('.forecast-scroll');
+        forecastScroll.innerHTML = '';
+
+        hourlyForecastData.forEach(hour => {
+            const hourCard = document.createElement('div');
+            hourCard.className = 'hour-card';
+            hourCard.innerHTML = `
+                <div class="time">${formatTime(hour.dt)}</div>
+                <div class="temp">${Math.round(hour.temp)}°</div>
+            `;
+            forecastScroll.appendChild(hourCard);
+        });
+    }
+
     // Update weather display
- function updateWeatherUI(data) {
+    function updateWeatherUI(data) {
         cityElement.textContent = `${data.city}, IN`;
         dateElement.textContent = formatDate();
         tempElement.innerHTML = `${Math.round(data.temperature)}<span>°c</span>`;
         weatherStatus.textContent = data.description;
         
-        // Update all metrics
+        // Update metrics
         windElement.querySelector('.value').textContent = `${data.wind_speed} km/h`;
         humidityElement.querySelector('.value').textContent = `${data.humidity}%`;
         tempHighElement.querySelector('.value').textContent = `${Math.round(data.temp_high)}°c`;
         tempLowElement.querySelector('.value').textContent = `${Math.round(data.temp_low)}°c`;
+
+        // Update hourly forecast
+        hourlyForecastData = data.hourly;
+        updateHourlyForecast();
     }
 
     // Fetch weather data
@@ -68,6 +103,9 @@ clearStaticHourly();
         }
     });
 
-    // Initial load
+    hourlyToggle.addEventListener('click', toggleTimeFormat);
+
+    // Initial setup
     dateElement.textContent = formatDate();
+    document.querySelector('.forecast-scroll').innerHTML = ''; // Clear static content
 });
