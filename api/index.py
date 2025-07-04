@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 
 # Get API key from environment variable or use demo key
-API_KEY = os.getenv('OWM_API_KEY', 'API_KEY')
+API_KEY = 'f215342ef6fb31829da6b26256b5d768'
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
